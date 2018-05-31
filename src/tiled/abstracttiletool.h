@@ -115,6 +115,9 @@ protected:
      */
     TileLayer *currentTileLayer() const;
 
+protected:
+    virtual QList<Layer *> targetLayers() const;
+
 private:
     void setBrushVisible(bool visible);
     void updateBrushVisibility();

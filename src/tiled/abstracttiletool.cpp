@@ -111,6 +111,7 @@ void AbstractTileTool::mapDocumentChanged(MapDocument *oldDocument,
 void AbstractTileTool::updateEnabledState()
 {
     setEnabled(currentTileLayer() != nullptr);
+    updateBrushVisibility();
 }
 
 void AbstractTileTool::updateStatusInfo()
@@ -163,12 +164,15 @@ void AbstractTileTool::setBrushVisible(bool visible)
 
 void AbstractTileTool::updateBrushVisibility()
 {
-    // Show the tile brush only when a visible tile layer is selected
+    // Show the tile brush only when at least one target layer is visible
     bool showBrush = false;
     if (mBrushVisible) {
-        if (Layer *layer = currentTileLayer()) {
-            if (layer->isVisible())
+        const auto layers = targetLayers();
+        for (auto layer : layers) {
+            if (!layer->isHidden()) {
                 showBrush = true;
+                break;
+            }
         }
     }
     mBrushItem->setVisible(showBrush);
@@ -180,4 +184,13 @@ TileLayer *AbstractTileTool::currentTileLayer() const
         if (auto currentLayer = mapDocument()->currentLayer())
             return currentLayer->asTileLayer();
     return nullptr;
+}
+
+QList<Layer *> AbstractTileTool::targetLayers() const
+{
+    // By default, only a current tile layer is considered the target
+    QList<Layer *> layers;
+    if (Layer *layer = currentTileLayer())
+        layers.append(layer);
+    return layers;
 }
